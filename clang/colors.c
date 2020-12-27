@@ -1,8 +1,11 @@
 #include "colors.h"
 
 
-rgba hsv_to_rgb(const hsva hsv) {
-  rgba rgb;
+#define BYTE_MAX 255
+
+
+rgb_t hsv_to_rgb(const hsv_t hsv) {
+  rgb_t rgb;
 
   rgb.r = hsv.h;
 
@@ -10,8 +13,8 @@ rgba hsv_to_rgb(const hsva hsv) {
 }
 
 
-hsva rgb_to_hsv(const rgba rgb) {
-  hsva hsv;
+hsv_t rgb_to_hsv(const rgb_t rgb) {
+  hsv_t hsv;
 
   hsv.h = rgb.r;
 

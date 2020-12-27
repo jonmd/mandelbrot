@@ -1,14 +1,15 @@
 CC = clang
-CFLAGS = -g -Wall -Wextra -pedantic -std=c11 -O2 -DDEBUG
+CFLAGS = -g -Wall -Wextra -pedantic -std=c11 -O2 -DINFO -lm -lpthread
 
 .PHONY: clean
-clean:
-	rm -rf ./mandelbrot
 
 compile: *.c
-	$(CC) $(CFLAGS) -o mandelbrot main.c image.c colors.c utils.c
+	$(CC) $(CFLAGS) -o mandelbrot main.c mandelbrot.c image.c colors.c utils.c
 
 run: mandelbrot
 	./mandelbrot
 
-all: compile run
+clean:
+	rm -rf ./mandelbrot
+
+all: compile

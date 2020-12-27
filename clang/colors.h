@@ -10,7 +10,7 @@ struct rgba_st {
     uint8_t a;
 } __attribute__((packed));
 
-typedef struct rgba_st rgba;
+typedef struct rgba_st rgb_t;
 
 
 struct hsva_st {
@@ -20,17 +20,18 @@ struct hsva_st {
     uint8_t a;
 } __attribute__((packed));
 
-typedef struct hsva_st hsva;
+typedef struct hsva_st hsv_t;
 
 
 union pixel {
-    rgba rgb;
-    rgba hsv;
+    rgb_t rgb;
+    hsv_t hsv;
+    uint8_t grey;
     int32_t i32;
 };
 
 
-extern rgba hsv_to_rgb(const hsva hsv);
+extern rgb_t hsv_to_rgb(const hsv_t hsv);
 
 
-extern hsva rgb_to_hsv(const rgba rgb);
+extern hsv_t rgb_to_hsv(const rgb_t rgb);
