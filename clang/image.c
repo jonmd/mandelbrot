@@ -5,7 +5,6 @@
 #include "utils.h"
 
 
-
 union pixel image_get_pixel(
     const image_t * img,
     const int32_t x,
