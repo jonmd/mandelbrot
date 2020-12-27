@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -g -Wall -Wextra -pedantic -std=c11 -O2 -DINFO -lm -lpthread
+CFLAGS = -g -Wall -Wextra -pedantic -std=c11 -O2 -DINFO -lm -lpthread -lpng
 
 .PHONY: clean
 

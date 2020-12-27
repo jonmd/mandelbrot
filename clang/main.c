@@ -141,23 +141,31 @@ int main(int argc, char ** argv) {
   mandelbrot_init(&arguments);
   image_t * img = mandelbrot_calculate();
 
-/*
+  /*
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       printf("%3d", image_get_pixel(img, x, y).i32);
     }
     printf("\n");
   }
-*/
+  */
 
-  // Write PNG
+  // Scale down to half resolution (1/4 pixels if supersampling was enabled)
   if (arguments.supersampling) {
     image_t * old_img = img;
     img = image_downscale(old_img);
     image_destroy(old_img);
   }
 
-  image_write_png(img);
+  // Convert to RGB
+  {
+    image_t * old_img = img;
+    img = image_hsv_to_rgb(old_img);
+    image_destroy(old_img);
+  }
+
+  // Write PNG
+  image_write_png(img, arguments.filename);
 
   return 0;
 }

@@ -107,6 +107,14 @@ image_t * mandelbrot_calculate()
   image_t * working_image = image_new(width, height, IMAGE_MODE_HSV);
   img = working_image;
 
+  // Initialize colorizing
+  colorize_init(n_iterations);
+  for (int i = 0; i <= n_iterations; i += 16) {
+    hsv_t c0 = colorize(i);
+    printf("colorize(%3d) -> c1 = %3d,%3d,%3d\n", i, c0.h, c0.s, c0.v);
+  }
+
+
   // Init lock
   if (pthread_mutex_init(&lock, NULL) != 0) {
     critical("Failed to initialize mutex\n");
@@ -267,7 +275,7 @@ int32_t m_process_pixel(const int32_t px, const int32_t py)
   int32_t iterations = m_solve(x, y);
   debug("p[%d, %d] = C[%.8f, %.8f] = %d\n", px, py, x, y, iterations);
   // Set pixel iteration color
-  img->pixels[py * width + px].i32 = iterations;
+  img->pixels[py * width + px].hsv = colorize(iterations);
   // Return iterations
   return iterations;
 }
