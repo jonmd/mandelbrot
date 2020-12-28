@@ -1,5 +1,6 @@
 #pragma once
 
+// Required for nanosleep to work
 #define _POSIX_C_SOURCE 199309L
 
 #include <math.h>
@@ -37,12 +38,13 @@ extern double y_range;
 extern int32_t width;
 extern int32_t height;
 
-extern int32_t iterations;
-extern int32_t threads;
+extern int32_t n_iterations;
+extern int32_t n_threads;
+
+extern int32_t supersampling;
 extern int32_t show_progress;
 
 
 extern void mandelbrot_init(const args_t * args);
-
 
 extern image_t * mandelbrot_calculate();

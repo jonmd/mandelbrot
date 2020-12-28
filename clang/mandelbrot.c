@@ -1,6 +1,8 @@
 #include "mandelbrot.h"
 
 
+// Options
+
 double x_min = -2.5;
 double x_max =  1.0;
 double y_min = -1.0;
@@ -19,6 +21,19 @@ int32_t supersampling = 0;
 int32_t show_progress;
 
 
+// Global state: Image and mutex
+
+image_t * img;
+int32_t img_next_row;
+
+pthread_mutex_t lock;
+
+
+// Initiate the Mandelbrot calculation with viewport,
+// size, max iterations, number of threads, whether to
+// render i twice the geometric size and if we are to
+// show progress.
+
 void mandelbrot_init(const args_t * args)
 {
   x_min = args->x_min;
@@ -36,25 +51,24 @@ void mandelbrot_init(const args_t * args)
 
   n_iterations = args->iterations;
   n_threads = args->threads;
+  supersampling = args->supersampling;
 
   show_progress = args->progress;
 
-  supersampling = args->supersampling;
-
   // Print arguments
   if (args->verbose) {
-    printf("[mandelbrot][init] width = %dpx\n", width);
-    printf("[mandelbrot][init] height = %dpx\n", height);
-    printf("[mandelbrot][init] supersampling = %d\n", supersampling);
-    printf("[mandelbrot][init] iterations = %d\n", n_iterations);
-    printf("[mandelbrot][init] threads = %d\n", n_threads);
-    printf("[mandelbrot][init] x_min = %15.12f\n", x_min);
-    printf("[mandelbrot][init] x_max = %15.12f\n", x_max);
-    printf("[mandelbrot][init] y_min = %15.12f\n", y_min);
-    printf("[mandelbrot][init] y_max = %15.12f\n", y_max);
-    printf("[mandelbrot][init] x_range = %15.12f\n", x_range);
-    printf("[mandelbrot][init] y_range = %15.12f\n", y_range);
-    printf("[mandelbrot][init] filename = %s\n", args->filename);
+    printf("[mandelbrot_init] width = %dpx\n", width);
+    printf("[mandelbrot_init] height = %dpx\n", height);
+    printf("[mandelbrot_init] supersampling = %d\n", supersampling);
+    printf("[mandelbrot_init] iterations = %d\n", n_iterations);
+    printf("[mandelbrot_init] threads = %d\n", n_threads);
+    printf("[mandelbrot_init] x_min = %15.12f\n", x_min);
+    printf("[mandelbrot_init] x_max = %15.12f\n", x_max);
+    printf("[mandelbrot_init] y_min = %15.12f\n", y_min);
+    printf("[mandelbrot_init] y_max = %15.12f\n", y_max);
+    printf("[mandelbrot_init] x_range = %15.12f\n", x_range);
+    printf("[mandelbrot_init] y_range = %15.12f\n", y_range);
+    printf("[mandelbrot_init] filename = %s\n", args->filename);
   }
 
   if (supersampling) {
@@ -64,11 +78,7 @@ void mandelbrot_init(const args_t * args)
 }
 
 
-// The next image row
-image_t * img;
-int32_t img_next_row;
-pthread_mutex_t lock;
-
+// Helper functions for threads to access the state
 
 int32_t get_next_row()
 {
@@ -97,9 +107,14 @@ int32_t get_progress()
   return row;
 }
 
+
+// Thread functions (implemented below)
+
 void * mandelbrot_thread(void * ptr);
 void * mandelbrot_progress_thread(void * ptr);
 
+
+// The public method for starting a Mandelbrot render
 
 image_t * mandelbrot_calculate()
 {
@@ -152,6 +167,9 @@ image_t * mandelbrot_calculate()
 }
 
 
+// The progress thread.
+// Sleeping and updating terminal every 0.1s.
+
 void * mandelbrot_progress_thread()
 {
   struct timespec time;
@@ -195,6 +213,8 @@ void * mandelbrot_progress_thread()
 }
 
 
+// Functions for processing each pixel.
+// (i.e. point in the complex plane)
 
 double px_to_coordinate(const int32_t px);
 double py_to_coordinate(const int32_t py);
@@ -202,18 +222,21 @@ int32_t m_solve(const double cx, const double cy);
 int32_t m_process_pixel(const int32_t px, const int32_t py);
 
 
+// A worker thread
+
 void * mandelbrot_thread()
 {
   int32_t py;
   int32_t px;
   int32_t i;
+  int32_t i_current;
 
   while ((py = get_next_row()) >= 0)
   {
     i = 0;
     for (px = 0; px < width; px++)
     {
-      int32_t i_current = m_process_pixel(px, py);
+      i_current = m_process_pixel(px, py);
       if (i_current > i) {
         i = i_current;
       }
@@ -225,12 +248,13 @@ void * mandelbrot_thread()
 }
 
 
+// The actual "Is it part of the Mandelbrot set?"-calculation
+
 double px_to_coordinate(const int32_t px)
 {
   const double p = ((double) px) + 0.5;
   return x_min + (p / ((double) width)) * x_range;
 }
-
 
 double py_to_coordinate(const int32_t py)
 {
@@ -238,7 +262,6 @@ double py_to_coordinate(const int32_t py)
   const double p = ((double) py) + 0.5;
   return y_min + ((h - p) / h) * y_range;
 }
-
 
 int32_t m_solve(const double cx, const double cy)
 {
@@ -266,7 +289,6 @@ int32_t m_solve(const double cx, const double cy)
 
   return max;
 }
-
 
 int32_t m_process_pixel(const int32_t px, const int32_t py)
 {
