@@ -1,16 +1,8 @@
-#include <math.h>
-
 #include "colors.h"
-#include "utils.h"
 
-/*
- *
- * RGB-HSV and HSV-RGB implementations from Stack Overflow:
- *
- * https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
- *
- */
 
+// Normalized RGB and HSV and function
+// decl. for conversions back and forth
 
 typedef struct {
     double r; // 0.0 - 1.0
@@ -24,13 +16,46 @@ typedef struct {
     double v; // 0.0 - 1.0
 } hsv_norm_t;
 
-rgb_norm_t norm_rgb(const rgb_t in);
-rgb_t quant_rgb(const rgb_norm_t in);
-hsv_norm_t norm_hsv(const hsv_t in);
-hsv_t quant_hsv(const hsv_norm_t in);
-
-
 #define BYTE (255.0)
+
+rgb_norm_t norm_rgb(const rgb_t in)
+{
+  rgb_norm_t out;
+  out.r = ((double) in.r) / BYTE;
+  out.g = ((double) in.g) / BYTE;
+  out.b = ((double) in.b) / BYTE;
+  return out;
+}
+
+rgb_t quant_rgb(const rgb_norm_t in)
+{
+  rgb_t out;
+  out.r = (uint8_t) round(in.r * BYTE);
+  out.g = (uint8_t) round(in.g * BYTE);
+  out.b = (uint8_t) round(in.b * BYTE);
+  return out;
+}
+
+hsv_norm_t norm_hsv(const hsv_t in)
+{
+  hsv_norm_t out;
+  out.h = (360.0 * (double) in.h) / BYTE;
+  out.s = ((double) in.s) / BYTE;
+  out.v = ((double) in.v) / BYTE;
+  return out;
+}
+
+hsv_t quant_hsv(const hsv_norm_t in)
+{
+  hsv_t out;
+  out.h = (uint8_t) round(in.h * BYTE / 360.0);
+  out.s = (uint8_t) round(in.s * BYTE);
+  out.v = (uint8_t) round(in.v * BYTE);
+  return out;
+}
+
+
+// The color scheme
 
 const rgb_t RGB_DARK_BLUE = { 0, 0, 0x1f, 0 };
 const rgb_t RGB_BLACK = { 0, 0, 0, 0 };
@@ -44,6 +69,9 @@ const rgb_t RGB_COLORS [] = {
 };
 const int32_t RGB_COLORS_COUNT = 6;
 
+
+// HSV to RGB. Shamelessly stolen from this Stack Overflow post:
+// https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
 
 rgb_t hsv_to_rgb(const hsv_t hsv) {
   hsv_norm_t in = norm_hsv(hsv);
@@ -110,6 +138,9 @@ rgb_t hsv_to_rgb(const hsv_t hsv) {
 }
 
 
+// RGB to HSV. Shamelessly stolen from this Stack Overflow post:
+// https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
+
 hsv_t rgb_to_hsv(const rgb_t rgb) {
   rgb_norm_t in = norm_rgb(rgb);
   hsv_norm_t out;
@@ -150,7 +181,6 @@ hsv_t rgb_to_hsv(const rgb_t rgb) {
   }
 
   out.h *= 60.0;                              // degrees
-
   if (out.h < 0.0) {
       out.h += 360.0;
   }
@@ -158,6 +188,10 @@ hsv_t rgb_to_hsv(const rgb_t rgb) {
   return quant_hsv(out);
 }
 
+
+// Linear interpolation between two HSV colors. TODO: Need
+// to look at shortest route for the HUE. Now always taking
+// the long route for colors more than 180 deg apart.
 
 hsv_t hsv_lerp(const hsv_t hsv1, const hsv_t hsv2, double factor)
 {
@@ -171,45 +205,9 @@ hsv_t hsv_lerp(const hsv_t hsv1, const hsv_t hsv2, double factor)
 }
 
 
-rgb_norm_t norm_rgb(const rgb_t in)
-{
-  rgb_norm_t out;
-  out.r = ((double) in.r) / BYTE;
-  out.g = ((double) in.g) / BYTE;
-  out.b = ((double) in.b) / BYTE;
-  return out;
-}
-
-
-rgb_t quant_rgb(const rgb_norm_t in)
-{
-  rgb_t out;
-  out.r = (uint8_t) round(in.r * BYTE);
-  out.g = (uint8_t) round(in.g * BYTE);
-  out.b = (uint8_t) round(in.b * BYTE);
-  return out;
-}
-
-
-hsv_norm_t norm_hsv(const hsv_t in)
-{
-  hsv_norm_t out;
-  out.h = (360.0 * (double) in.h) / BYTE;
-  out.s = ((double) in.s) / BYTE;
-  out.v = ((double) in.v) / BYTE;
-  return out;
-}
-
-
-hsv_t quant_hsv(const hsv_norm_t in)
-{
-  hsv_t out;
-  out.h = (uint8_t) round(in.h * BYTE / 360.0);
-  out.s = (uint8_t) round(in.s * BYTE);
-  out.v = (uint8_t) round(in.v * BYTE);
-  return out;
-}
-
+// Color gradient functions.
+// colorize_init(): Creates a gradient for the given n_iterations.
+// colorize(): Used to decide HSV color given n_iterations.
 
 typedef struct {
   int32_t index;
@@ -230,13 +228,11 @@ int32_t n_iterations = 0;
 void _c_create_gradient(int32_t iterations);
 void _c_prepare_gradients(color_step_t * steps, int32_t n_steps);
 
-
 void colorize_init(int32_t iterations)
 {
   n_iterations = iterations;
   _c_create_gradient(iterations);
 }
-
 
 hsv_t colorize(int32_t value)
 {
@@ -271,7 +267,6 @@ hsv_t colorize(int32_t value)
     return rgb_to_hsv(RGB_DARK_BLUE);
   }
 }
-
 
 void _c_create_gradient(int32_t iterations)
 {
@@ -310,7 +305,6 @@ void _c_create_gradient(int32_t iterations)
 
   mem_free(steps);
 }
-
 
 void _c_prepare_gradients(color_step_t * steps, int32_t n_steps)
 {
@@ -355,5 +349,4 @@ void _c_prepare_gradients(color_step_t * steps, int32_t n_steps)
 
   }
   #endif
-
 }
