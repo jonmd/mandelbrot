@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <png.h>
 
 #include "image.h"
@@ -54,19 +55,61 @@ void image_destroy(image_t * img)
 }
 
 
+hsv_t _downscale_average(hsv_t * hsv, int32_t n);
+
+
 image_t * image_downscale(const image_t * img)
 {
   if (img == NULL) {
     critical("image_downscale() received NULL\n");
-  } else {
-    critical("image_downscale() not implemented\n");
+    return NULL;
   }
 
-  return (image_t * ) NULL;
+  int32_t width = img->width / 2;
+  int32_t height = img->height / 2;
+
+  image_t * out = image_new(width, height, IMAGE_MODE_HSV);
+
+  hsv_t hsv[4];
+  union pixel px;
+
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      hsv[0] = image_get_pixel(img, x * 2 + 0, y * 2 + 0).hsv;
+      hsv[1] = image_get_pixel(img, x * 2 + 1, y * 2 + 0).hsv;
+      hsv[2] = image_get_pixel(img, x * 2 + 0, y * 2 + 1).hsv;
+      hsv[3] = image_get_pixel(img, x * 2 + 1, y * 2 + 1).hsv;
+
+      px.hsv = _downscale_average(&hsv[0], 4);
+
+      image_set_pixel(out, x, y, px);
+    }
+  }
+
+  return (image_t * ) out;
 }
 
 
-extern image_t * image_hsv_to_rgb(const image_t * img)
+hsv_t _downscale_average(hsv_t * hsv, int32_t n)
+{
+  const double f = 1 / (double) n;
+  double h = 0.0, s = 0.0, v = 0.0;
+
+  for (int32_t i = 0; i < n; i++)
+  {
+    h += hsv[i].h * f;
+    s += hsv[i].s * f;
+    v += hsv[i].v * f;
+  }
+
+  hsv_t out = { round(h), round(s), round(v), 0 };
+
+  return out;
+}
+
+
+
+image_t * image_hsv_to_rgb(const image_t * img)
 {
   if (img == NULL) {
     critical("image_hsv_to_rgb() received NULL\n");
