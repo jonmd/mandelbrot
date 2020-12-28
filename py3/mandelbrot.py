@@ -1,4 +1,4 @@
-"""Render the mandelbrot set for a
+"""Render the mandelbrot set.
 
 Usage:
     mandelbrot.py <filename> [--width=<w>] [--supersample=<s>] [--processes=<p>] [--iterations=<i>] [--xmin=<n>] [--xmax=<n>] [--ymin=<n>] [--ymax=<n>] [--colorize] [--zx=<N>] [--zy=<N>]
