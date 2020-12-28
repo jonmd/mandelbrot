@@ -141,15 +141,6 @@ int main(int argc, char ** argv) {
   mandelbrot_init(&arguments);
   image_t * img = mandelbrot_calculate();
 
-  /*
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      printf("%3d", image_get_pixel(img, x, y).i32);
-    }
-    printf("\n");
-  }
-  */
-
   // Scale down to half resolution (1/4 pixels if supersampling was enabled)
   if (arguments.supersampling) {
     image_t * old_img = img;

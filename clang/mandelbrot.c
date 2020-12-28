@@ -109,11 +109,13 @@ image_t * mandelbrot_calculate()
 
   // Initialize colorizing
   colorize_init(n_iterations);
+
+  #ifdef DEBUG
   for (int i = 0; i <= n_iterations; i += 16) {
     hsv_t c0 = colorize(i);
     printf("colorize(%3d) -> c1 = %3d,%3d,%3d\n", i, c0.h, c0.s, c0.v);
   }
-
+  #endif
 
   // Init lock
   if (pthread_mutex_init(&lock, NULL) != 0) {

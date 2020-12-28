@@ -5,7 +5,7 @@
 
 /*
  *
- * RGB-HSV and HSV-RGB implementations from StackOverflow:
+ * RGB-HSV and HSV-RGB implementations from Stack Overflow:
  *
  * https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
  *
@@ -339,17 +339,21 @@ void _c_prepare_gradients(color_step_t * steps, int32_t n_steps)
     prev = curr;
   }
 
+  #ifdef DEBUG
   for (i = 0; i < color_gradient_size; i++)
   {
     color_range_t * range = &color_gradient[i];
     hsv_t c0 = range->c0;
     hsv_t c1 = range->c1;
+
     printf(
       "[%3d]  %3d – %3d  |  c0 = %3d,%3d,%3d  |  c1 = %3d,%3d,%3d\n",
       i, range->i0, range->i1,
       c0.h, c0.s, c0.v,
       c1.h, c1.s, c1.v
     );
+
   }
+  #endif
 
 }
