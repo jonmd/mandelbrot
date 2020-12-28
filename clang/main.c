@@ -6,6 +6,8 @@
 #include <unistd.h>
 
 
+// Parameter parsing using argp
+
 enum parameter_keys {
   WIDTH = 'w',
   ITERATIONS = 'i',
@@ -21,7 +23,6 @@ enum parameter_keys {
 
 const char * argp_program_version = "mandelbrot v0.1";
 static char doc [] = "Draw the Mandelbrot set a selected region.";
-
 static char args_doc [] = "IMAGE.png";
 
 static struct argp_option options [] = {
@@ -96,7 +97,7 @@ static error_t parse_opt(int32_t key, char * arg, struct argp_state * state) {
 
     case ARGP_KEY_ARG:
       if (state->arg_num >= 1) {
-        // Only one filename should be provided
+        // Provide exactly one output image filename
         argp_usage(state);
       }
       args->filename = arg;
@@ -104,7 +105,7 @@ static error_t parse_opt(int32_t key, char * arg, struct argp_state * state) {
 
     case ARGP_KEY_END:
       if (state->arg_num != 1) {
-        // Provide exactly one output image file
+        // Provide exactly one output image filename
         argp_usage(state);
       }
       break;
@@ -115,7 +116,6 @@ static error_t parse_opt(int32_t key, char * arg, struct argp_state * state) {
 
   return 0;
 }
-
 
 
 int main(int argc, char ** argv) {
