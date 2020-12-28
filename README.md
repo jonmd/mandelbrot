@@ -54,7 +54,7 @@ $ ./mandelbrot --width 512 --supersampling --ymin -1.75 --ymax 1.75 image.png
 ![Full](https://github.com/jonmd/mandelbrot/blob/master/images/mandelbrot_full_512px.png?raw=true)
 
 
-### Zoomed in on `0.544 + 0.494i ± 0.001`
+### Zoomed in on -0.544 + 0.494i ±0.001
 
 ```
 $ ./mandelbrot --width 512 --iterations 768 --supersampling \
