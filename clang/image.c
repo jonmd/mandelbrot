@@ -1,10 +1,7 @@
-#include <stdio.h>
-#include <math.h>
-#include <png.h>
-
 #include "image.h"
-#include "utils.h"
 
+
+// Getter and setter
 
 union pixel image_get_pixel(
     const image_t * img,
@@ -15,7 +12,6 @@ union pixel image_get_pixel(
   const int32_t w = img->width;
   return img->pixels[y * w + x];
 }
-
 
 void image_set_pixel(
     image_t * img,
@@ -28,6 +24,8 @@ void image_set_pixel(
   img->pixels[y * w + x] = pixel;
 }
 
+
+// Create and destroy image
 
 image_t * image_new(
     const int32_t width,
@@ -48,15 +46,15 @@ image_t * image_new(
   return img;
 }
 
-
 void image_destroy(image_t * img)
 {
   free(img);
 }
 
 
-hsv_t _downscale_average(hsv_t * hsv, int32_t n);
+// Function to downscale by a factor 2 (2x2 px -> 1 px)
 
+hsv_t _downscale_average(hsv_t * hsv, int32_t n);
 
 image_t * image_downscale(const image_t * img)
 {
@@ -89,7 +87,6 @@ image_t * image_downscale(const image_t * img)
   return (image_t * ) out;
 }
 
-
 hsv_t _downscale_average(hsv_t * hsv, int32_t n)
 {
   const double f = 1 / (double) n;
@@ -108,6 +105,7 @@ hsv_t _downscale_average(hsv_t * hsv, int32_t n)
 }
 
 
+// Convert an image in HSV to RGB
 
 image_t * image_hsv_to_rgb(const image_t * img)
 {
@@ -134,6 +132,8 @@ image_t * image_hsv_to_rgb(const image_t * img)
   return out;
 }
 
+
+// Write image to file as PNG
 
 int32_t image_write_png(const image_t * img, const char * filename) {
   if (img == NULL) {
@@ -218,7 +218,6 @@ int32_t image_write_png(const image_t * img, const char * filename) {
   status = 0;
 
   // Close fp and clean up stuff
-
 png_failure:
 png_create_info_struct_failed:
   png_destroy_write_struct (&png_ptr, &info_ptr);
