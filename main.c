@@ -29,13 +29,13 @@ static struct argp_option options [] = {
   {"width", WIDTH, "WIDTH", 0, "Set output image width in pixels [default: 300]", -1},
   {"iterations", ITERATIONS, "N", 0, "Number of iterations per pixel [default: 100]", -1},
   {"supersampling", SUPERSAMPLING, 0, 0, "Sample with a factor 2x2 [default: no]", -1},
-  {"threads", THREADS, "NTHREADS", 0, "Set number of threads", -1},
+  {"threads", THREADS, "NTHREADS", 0, "Set number of threads [default: 1]", -1},
   {"progress", PROGRESS, 0, 0, "Show progress [default: no]", -1},
   {"xmin", XMIN_KEY, "F", 0, "Minimum X [default: -2.5]", -1},
   {"xmax", XMAX_KEY, "F", 0, "Maximum X [default:  1.0]", -1},
   {"ymin", YMIN_KEY, "F", 0, "Minimum Y [default: -1.0]", -1},
   {"ymax", YMAX_KEY, "F", 0, "Maximum Y [default:  1.0]", -1},
-  {"verbose", VERBOSE, 0, 0, "Print more", -1},
+  {"verbose", VERBOSE, 0, 0, "Print program parameters on start", -1},
   { 0 },
 };
 
